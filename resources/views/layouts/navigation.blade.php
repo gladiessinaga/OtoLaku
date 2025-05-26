@@ -20,6 +20,34 @@
                             >
                                 {{ __('Dashboard') }}
                             </x-nav-link>
+                            
+                            <!-- Link Permintaan Pembatalan hanya untuk admin -->
+                            <x-nav-link
+                                :href="route('admin.pembatalan.index')"
+                                :active="request()->routeIs('admin.pembatalan.index')"
+                                class="hover:border-b-2 hover:border-blue-500 transition duration-200"
+                            >
+                                {{ __('Permintaan Pembatalan') }}
+                            </x-nav-link>
+
+                            {{-- Link Laporan Masalah Admin
+                            <x-nav-link
+                                :href="route('admin.laporan-masalah.index')"
+                                :active="request()->routeIs('admin.laporan-masalah.index')"
+                                class="hover:border-b-2 hover:border-blue-500 transition duration-200"
+                            >
+                                {{ __('Laporan Masalah') }}
+                            </x-nav-link> --}}
+
+                            <!-- Link Notifikasi admin -->
+                            <x-nav-link
+                                :href="route('user.notifikasi')"
+                                :active="request()->routeIs('notifications.index')"
+                                class="hover:border-b-2 hover:border-blue-500 transition duration-200"
+                            >
+                                {{ __('Notifikasi') }}
+                            </x-nav-link>
+
                         @elseif(auth()->user()->role === 'user')
                             <x-nav-link
                                 :href="route('user.dashboard')"
@@ -36,21 +64,30 @@
                             >
                                 {{ __('Riwayat Pemesanan') }}
                             </x-nav-link>
+
+                            <!-- Link Notifikasi user -->
+                            <x-nav-link
+                                :href="route('user.notifikasi')"
+                                :active="request()->routeIs('notifications/index')"
+                                class="hover:border-b-2 hover:border-blue-500 transition duration-200"
+                            >
+                                {{ __('Notifikasi') }}
+                            </x-nav-link>
                         @endif
                     @endauth
 
                     <!-- Link Umum -->
                     <x-nav-link
-                        :href="route('dashboard')"
-                        :active="request()->routeIs('dashboard')"
+                        :href="route('faq')"
+                        :active="request()->routeIs('faq')"
                         class="hover:border-b-2 hover:border-blue-500 transition duration-200"
                     >
                         {{ __('FAQ') }}
                     </x-nav-link>
 
                     <x-nav-link
-                        :href="route('dashboard')"
-                        :active="request()->routeIs('dashboard')"
+                        :href="route('user.lapor-masalah')"
+                        :active="request()->routeIs('user.lapor-masalah')"
                         class="hover:border-b-2 hover:border-blue-500 transition duration-200"
                     >
                         {{ __('Lapor Masalah') }}
@@ -63,9 +100,11 @@
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500
+                            <button
+                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500
                                 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300
-                                focus:outline-none transition ease-in-out duration-150">
+                                focus:outline-none transition ease-in-out duration-150"
+                            >
                                 <div>{{ Auth::user()->name }}</div>
 
                                 <div class="ms-1">
@@ -102,7 +141,9 @@
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500
                     dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100
-                    dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
+                    dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
+                    aria-controls="mobile-menu" aria-expanded="false"
+                >
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{ 'hidden': open, 'inline-flex': !open }" class="inline-flex"
                             stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -117,13 +158,24 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
+    <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden" id="mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
             @auth
                 @if(auth()->user()->role === 'admin')
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
+                    
+                    <!-- Link Permintaan Pembatalan untuk responsive menu admin -->
+                    <x-responsive-nav-link :href="route('admin.pembatalan.index')" :active="request()->routeIs('admin.pembatalan.index')">
+                        {{ __('Permintaan Pembatalan') }}
+                    </x-responsive-nav-link>
+
+                    <!-- Link Notifikasi untuk responsive menu admin -->
+                    <x-responsive-nav-link :href="route('user.notifikasi')" :active="request()->routeIs('notifications.index')">
+                        {{ __('Notifikasi') }}
+                    </x-responsive-nav-link>
+
                 @elseif(auth()->user()->role === 'user')
                     <x-responsive-nav-link :href="route('user.dashboard')" :active="request()->routeIs('user.dashboard')">
                         {{ __('Dashboard') }}
@@ -132,14 +184,19 @@
                     <x-responsive-nav-link :href="route('user.riwayat')" :active="request()->routeIs('user.riwayat')">
                         {{ __('Riwayat Pemesanan') }}
                     </x-responsive-nav-link>
+
+                    <!-- Link Notifikasi untuk responsive menu user -->
+                    <x-responsive-nav-link :href="route('user.notifikasi')" :active="request()->routeIs('notifications.index')">
+                        {{ __('Notifikasi') }}
+                    </x-responsive-nav-link>
                 @endif
             @endauth
 
             <!-- Umum -->
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('faq')" :active="request()->routeIs('faq')">
                 {{ __('FAQ') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('user.lapor-masalah')" :active="request()->routeIs('user.lapor-masalah')">
                 {{ __('Lapor Masalah') }}
             </x-responsive-nav-link>
         </div>

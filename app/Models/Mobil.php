@@ -15,4 +15,10 @@ class Mobil extends Model
         'fasilitas',
         'foto'
     ];
+
+    public function pemesanans()
+{
+    return $this->hasMany(Pemesanan::class);
+}
+
 }

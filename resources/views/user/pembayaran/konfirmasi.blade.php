@@ -79,10 +79,31 @@
             &larr; Kembali
             </a>
 
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            <button type="button" id="btn-konfirmasi" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                 Konfirmasi Pembayaran
             </button>
         </div>
+
+        <!-- Modal Syarat & Ketentuan Pembatalan -->
+<div id="modal-syarat" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 class="text-lg font-semibold mb-4">Syarat & Ketentuan Pembatalan</h3>
+        <div class="text-sm text-gray-700 space-y-3 mb-6 max-h-60 overflow-y-auto">
+            <p>1. Pembatalan hanya dapat dilakukan sebelum tanggal sewa dimulai.</p>
+            <p>2. Pembatalan pada hari H (tanggal sewa) tidak dapat dilakukan dan tidak ada pengembalian dana.</p>
+            <p>3. Pengembalian dana tidak dilakukan secara penuh. Pengguna hanya menerima 80% dari total pembayaran sebagai pengembalian.</p>
+            <p>4. Proses pengembalian membutuhkan waktu maksimal 3 hari kerja.</p>
+            <p>5. Dengan melanjutkan, Anda menyetujui syarat dan ketentuan di atas.</p>
+        </div>
+        <div class="flex justify-end space-x-4">
+            <button id="batal-syarat" type="button" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Batal</button>
+            <button id="submit-konfirmasi" type="submit" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">
+                Setuju & Konfirmasi Pembayaran
+            </button>
+        </div>
+    </div>
+</div>
+
         </form>
     </div>
 
@@ -101,6 +122,7 @@
         </div>
     </div>
 </div>
+
 
     <script>
         function handleMetodeChange(value) {
@@ -138,8 +160,30 @@
             modal.classList.add('hidden');
         }
     });
-
-
-
     </script>
+
+    <script>
+    // Modal metode pembayaran (sudah ada)
+    // ...
+
+    // Modal syarat & ketentuan
+    const btnKonfirmasi = document.getElementById('btn-konfirmasi');
+    const modalSyarat = document.getElementById('modal-syarat');
+    const batalSyarat = document.getElementById('batal-syarat');
+
+    btnKonfirmasi.addEventListener('click', () => {
+        modalSyarat.classList.remove('hidden');
+    });
+
+    batalSyarat.addEventListener('click', () => {
+        modalSyarat.classList.add('hidden');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modalSyarat) {
+            modalSyarat.classList.add('hidden');
+        }
+    });
+</script>
+
 </x-app-layout>

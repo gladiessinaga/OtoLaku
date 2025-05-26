@@ -9,7 +9,17 @@ use App\Http\Controllers\PemesananController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\AdminPemesananController;
 use App\Http\Controllers\AdminMobilController;
-
+use App\Http\Controllers\AdminPenyerahanController;
+use App\Http\Controllers\User\PembatalanController;
+use App\Notifications\VerifikasiPembayaranNotification;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\MasalahController;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\AdminLaporanController;
+use App\Http\Controllers\AdminPengembalianController;
+use App\Http\Controllers\PengembalianUangController;
+use App\Http\Controllers\PembatalanDisetujuiController;
+use App\Http\Controllers\FeedbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,9 +87,30 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/pemesanan', [AdminPemesananController::class, 'index'])->name('admin.pemesanan.index');
     Route::get('/admin/pemesanan/{id}', [AdminPemesananController::class, 'show'])->name('admin.pemesanan.detail');
     Route::post('/admin/pemesanan/{id}/verifikasi', [AdminPemesananController::class, 'verifikasi'])->name('admin.pemesanan.verifikasi');
-    Route::post('/admin/pemesanan/{id}/tolak', [PemesananController::class, 'tolak'])->name('admin.pemesanan.tolak');
     Route::delete('/admin/pemesanan/{id}', [AdminPemesananController::class, 'destroy'])->name('admin.pemesanan.destroy');
+    Route::post('/admin/pemesanan/{id}/terima-kembali', [AdminPemesananController::class, 'terimaKembali'])->name('admin.pemesanan.terima_kembali');
+    Route::get('/admin/pembatalan', [AdminPemesananController::class, 'pembatalanIndex'])->name('admin.pembatalan.index');
 });
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/admin/pemesanan/{id}/tolak', [AdminPemesananController::class, 'tolak'])->name('admin.pemesanan.tolak');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Penyerahan
+    Route::get('penyerahan', [AdminPenyerahanController::class, 'index'])->name('penyerahan');
+    Route::put('penyerahan/{id}', [AdminPenyerahanController::class, 'update'])->name('penyerahan.update');
+    Route::post('penyerahan/{id}/serahkan', [AdminPenyerahanController::class, 'serahkan'])->name('penyerahan.serahkan');
+
+    // Pengembalian
+    Route::get('pengembalian', [AdminPenyerahanController::class, 'index'])->name('pengembalian');
+    Route::put('pengembalian/{id}/verifikasi', [AdminPemesananController::class, 'verifikasiPengembalian'])->name('pengembalian.verifikasi');
+
+});
+
+// routes/web.php
+Route::get('/pengembalian-uang/{id}', [PengembalianUangController::class, 'show'])->name('pengembalian.uang');
+
 
 Route::get('/user/riwayat', [PemesananController::class, 'riwayat'])
     ->name('user.pemesanan.riwayat')
@@ -91,6 +122,8 @@ Route::middleware(['auth', 'checkRole:user'])->group(function () {
 });
 
 Route::get('/user/riwayat', [PemesananController::class, 'riwayat'])->middleware('auth')->name('user.riwayat');
+
+Route::post('/pengembalian/ajukan/{id}', [PemesananController::class, 'ajukanPengembalian'])->name('user.pengembalian.ajukan');
 
 Route::get('/user/pemesanan/aktif', [PemesananController::class, 'aktif'])
     ->middleware(['auth', 'checkRole:user'])
@@ -108,12 +141,64 @@ Route::post('/admin/mobil', [MobilController::class, 'store'])->name('admin.mobi
 
 Route::post('/user/pemesanan/{id}/batalkan', [PemesananController::class, 'batalkan'])->name('user.pemesanan.batalkan');
 
-Route::post('/admin/pembatalan/{id}/setujui', [AdminPemesananController::class, 'setujuiPembatalan'])->name('admin.pembatalan.approve');
-Route::post('/admin/pembatalan/{id}/tolak', [AdminPemesananController::class, 'tolakPembatalan'])->name('admin.pembatalan.reject');
-    
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::post('admin/pembatalan/{id}/approve', [PembatalanController::class, 'approve'])->name('admin.pembatalan.approve');
+    Route::post('admin/pembatalan/{id}/reject', [PembatalanController::class, 'reject'])->name('admin.pembatalan.reject');
+});
 
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::get('/test-notif', function () {
+    $user = User::find(2); // Ganti sesuai ID user kamu
+    $user->notify(new VerifikasiPembayaranNotification());
 
+    return 'Notifikasi terkirim!';
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('user.notifikasi');
+    Route::post('/notifikasi/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifikasi/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+});
+
+// Route::get('/faq', function () {
+//     return view('user.faq');
+// })->middleware(['auth', 'verified'])->name('faq');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/faq', [FaqController::class, 'index'])->name('faq');
+    Route::get('/faq/{id}', [FaqController::class, 'show'])->name('faq.show');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/lapor-masalah', [MasalahController::class, 'index'])->name('user.lapor-masalah');
+    Route::post('/lapor-masalah/kirim', [MasalahController::class, 'kirim'])->name('user.lapor-masalah.kirim');
+});
+
+Route::post('/lapor', [MasalahController::class, 'store'])->name('user.lapor-masalah.store');
+
+Route::middleware(['auth', 'checkRole:admin'])->group(function () {
+    Route::get('/admin/laporan-masalah', [AdminLaporanController::class, 'index'])->name('admin.laporan-masalah.index');
+});
+
+Route::get('/lapor/create', [MasalahController::class, 'create'])->name('lapor.create');
+
+// routes/web.php
+Route::get('/admin/pembatalan-disetujui', [PembatalanDisetujuiController::class, 'approved'])->name('admin.pembatalan.disetujui');
+Route::post('/admin/proses-refund/{id}', [PembatalanDisetujuiController::class, 'prosesRefund'])->name('admin.proses.refund');
+
+Route::get('/feedback', [FeedbackController::class, 'create'])->name('feedback.form');
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+
+Route::get('/admin/feedbacks', [FeedbackController::class, 'index'])->middleware('admin');
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/feedbacks', [FeedbackController::class, 'index'])->name('admin.feedback');
+});
+
+Route::get('/invoice/download/{id}', [PemesananController::class, 'downloadInvoice'])->name('invoice.download');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+
+Route::post('/logout', [AuthenticatedSessionContraoller::class, 'destroy'])->middleware('auth')->name('logout');
 
 
 require __DIR__.'/auth.php';

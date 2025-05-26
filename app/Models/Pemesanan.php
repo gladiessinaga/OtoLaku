@@ -37,4 +37,10 @@ class Pemesanan extends Model
         return $this->hasOne(Pembayaran::class);
     }
 
+    public function pembatalan()
+{
+    return $this->hasOne(Pembatalan::class);
+}
+
+
 }

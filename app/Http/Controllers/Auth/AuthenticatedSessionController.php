@@ -31,6 +31,7 @@ class AuthenticatedSessionController extends Controller
          $request->validate([
         'email' => 'required|email',
         'password' => 'required',
+        'g-recaptcha-response' => 'required|captcha', 
     ]);
 
     if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
@@ -43,6 +44,8 @@ class AuthenticatedSessionController extends Controller
 
     // Cek role user dan redirect sesuai role
     $user = Auth::user();
+
+    $request->session()->flash('login_success', 'Anda berhasil masuk!');
 
     if ($user->role === 'admin') {
         return redirect()->intended('/admin/dashboard');

@@ -54,6 +54,19 @@
             @else
                 <p class="text-gray-500">Data tidak ditemukan</p>
             @endif  
+            <div class="pt-4 border-t">
+    @if($pemesanan->status == 'terverifikasi')
+        <a href="{{ route('invoice.download', $pemesanan->id) }}" 
+           class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            Download Invoice
+        </a>
+    @elseif($pemesanan->status == 'menunggu_verifikasi')
+        <p class="text-yellow-700 font-semibold">Invoice akan tersedia setelah pesanan diverifikasi.</p>
+    @elseif($pemesanan->status == 'dibatalkan')
+        <p class="text-red-600 font-semibold">Pesanan dibatalkan. Invoice tidak tersedia.</p>
+    @endif
+</div>
+
         </div>
     </div>
 </x-app-layout>

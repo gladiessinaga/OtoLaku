@@ -14,10 +14,25 @@
                     Selamat datang, <span class="text-green-600 dark:text-green-400">{{ Auth::user()->name }}</span>
                 </h1>
 
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 flex-wrap">
                     <a href="{{ route('admin.pemesanan.index') }}" 
                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded shadow transition">
                         📋 Lihat Pesanan Masuk
+                    </a>
+
+                    <a href="{{ route('admin.penyerahan') }}" 
+                       class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-5 rounded shadow transition">
+                        🚗 Penyerahan Mobil
+                    </a>
+
+                    <a href="{{ route('admin.pembatalan.disetujui') }}" 
+                    class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded shadow transition">
+                        💸 Pembatalan Disetujui
+                    </a>
+
+                    <a href="{{ route('admin.feedback') }}" 
+                    class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded shadow transition">
+                        Lihat Feedback User
                     </a>
 
                     <div class="text-gray-700 dark:text-gray-300 font-medium">
@@ -28,6 +43,7 @@
                     </div>
                 </div>
             </div>
+
 
             {{-- Kartu Daftar Mobil --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg p-6">
@@ -60,12 +76,15 @@
                             @forelse ($mobils as $mobil)
                                 <tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <td class="p-3">
-                                        <img src="{{ asset('storage/' . $mobil->foto) }}" alt="Foto Mobil" class="w-24 h-16 object-cover rounded">
+                                        <img src="{{ asset('storage/' . $mobil->foto) }}" 
+                                            alt="Foto Mobil" 
+                                            class="w-24 h-16 object-cover rounded cursor-pointer previewFoto" 
+                                            data-full="{{ asset('storage/' . $mobil->foto) }}" />
                                     </td>
                                     <td class="p-3">{{ $mobil->nama }}</td>
                                     <td class="p-3">Rp{{ number_format($mobil->harga) }}</td>
                                     <td class="p-3">{{ $mobil->fasilitas }}</td>
-                                    <td class="p-3 space-x-3">
+                                    <td class="p-3 space-x-2x">
                                         <a href="{{ route('admin.mobil.edit', $mobil->id) }}" class="text-blue-500 hover:underline">Edit</a>
                                         
                                         <form id="delete-form-{{ $mobil->id }}" action="{{ route('admin.mobil.destroy', $mobil->id) }}" method="POST" class="inline">
@@ -138,4 +157,47 @@
             });
         });
     </script>
+
+    
+<!-- Script -->
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+    const modalFoto = document.getElementById('modalFoto');
+    const modalImage = document.getElementById('modalImage');
+    const closeModal = document.getElementById('closeModal');
+
+    // Semua gambar preview
+    const previewFotos = document.querySelectorAll('.previewFoto');
+
+    previewFotos.forEach(img => {
+        img.addEventListener('click', function () {
+            const fullSrc = this.getAttribute('data-full');
+            modalImage.src = fullSrc;
+            modalFoto.classList.remove('hidden');
+        });
+    });
+
+    closeModal.addEventListener('click', () => {
+        modalFoto.classList.add('hidden');
+        modalImage.src = '';
+    });
+
+    // Tutup modal jika klik di luar konten
+    modalFoto.addEventListener('click', (e) => {
+        if (e.target === modalFoto) {
+            modalFoto.classList.add('hidden');
+            modalImage.src = '';
+        }
+    });
+}); 
+</script>
+
+<!-- Modal untuk preview foto -->
+<div id="modalFoto" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg p-4 max-w-lg max-h-[80vh] overflow-auto relative">
+        <button id="closeModal" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900 font-bold text-xl">&times;</button>
+        <img id="modalImage" src="" alt="Preview Foto Mobil" class="max-w-full max-h-[70vh] rounded" />
+    </div>
+</div>
+
 </x-app-layout>
