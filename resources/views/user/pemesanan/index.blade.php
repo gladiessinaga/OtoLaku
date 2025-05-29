@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold text-gray-800">Daftar Pemesanan Saya</h2>
             <a href="{{ route('user.dashboard') }}"
-            class="inline-block bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 font-semibold py-1.5 px-4 rounded">
+                class="inline-block bg-gray-200 hover:bg-gray-300 text-sm text-gray-800 font-semibold py-1.5 px-4 rounded">
                 ← Dashboard
             </a>
         </div>
@@ -32,19 +32,29 @@
                             <td class="px-4 py-3">
                                 @if($item->status === 'dibatalkan')
                                     <span class="inline-block px-2 py-1 rounded bg-red-200 text-red-800">Dibatalkan</span>
-                                @elseif($item->permintaan_pembatalan && $item->status_pembatalan === 'pending')
+                                @elseif($item->pembatalan && $item->pembatalan->status === 'pending')
                                     <span class="inline-block px-2 py-1 rounded bg-yellow-100 text-yellow-800">Menunggu Persetujuan Pembatalan</span>
-                                @elseif($item->status_pembatalan === 'ditolak')
+                                @elseif($item->status === 'draft')
+                                    <span class="inline-block px-2 py-1 rounded bg-yellow-100 text-yellow-800">Draft</span>
+                                @elseif($item->pembatalan && $item->pembatalan->status === 'dibatalkan')
                                     <span class="inline-block px-2 py-1 rounded bg-orange-100 text-orange-800">Pembatalan Ditolak</span>
                                 @elseif($item->status === 'menunggu_verifikasi')
                                     <span class="inline-block px-2 py-1 rounded bg-yellow-200 text-yellow-800">Menunggu Verifikasi Admin</span>
                                 @elseif($item->status === 'terverifikasi')
                                     <span class="inline-block px-2 py-1 rounded bg-green-200 text-green-800">Terverifikasi</span>
+                                @elseif($item->status === 'ditolak')
+                                    <span class="inline-block px-2 py-1 rounded bg-red-100 text-red-800">Ditolak</span>
+                                @elseif($item->status === 'terverifikasi' && $item->status_pengembalian === 'Dikembalikan')
+                                    <span class="inline-block px-2 py-1 rounded bg-green-100 text-green-800">Sudah Dikembalikan</span>
+                                @elseif($item->status === 'terverifikasi' && $item->status_pengembalian === 'Belum Dikembalikan')
+                                    <span class="inline-block px-2 py-1 rounded bg-gray-200 text-gray-800">Belum Dikembalikan</span>
+                                @else
+                                    {{-- kosong / tidak ada status --}}
                                 @endif
                             </td>
                             <td class="px-4 py-3 space-y-1">
                                 <a href="{{ route('user.pemesanan.show', $item->id) }}" class="text-blue-600 hover:underline block">Lihat</a>
-                                @if(in_array($item->status, ['menunggu_verifikasi', 'terverifikasi']) && !$item->permintaan_pembatalan)
+                                @if(in_array($item->status, ['menunggu_verifikasi', 'terverifikasi']) && !$item->pembatalan)
                                     <button onclick="openCancelModal({{ $item->id }})"
                                         class="text-yellow-600 hover:underline text-sm block mt-1">Batalkan</button>
                                 @endif
@@ -63,8 +73,8 @@
     </div>
 
     {{-- Modal Pembatalan --}}
-    <div id="cancel-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden justify-center items-center">
-        <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+    <div id="cancel-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded shadow-md w-full max-w-md mx-auto">
             <h3 class="text-lg font-bold mb-4">Alasan Pembatalan</h3>
             <form id="cancel-form" method="POST">
                 @csrf
@@ -89,18 +99,29 @@
     @push('scripts')
     <script>
         function openCancelModal(id) {
-            document.getElementById('cancel-modal').classList.remove('hidden');
-            document.getElementById('cancel-form').action = '/user/pemesanan/' + id + '/batalkan';
+            const modal = document.getElementById('cancel-modal');
+            const form = document.getElementById('cancel-form');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            form.action = `/user/pemesanan/${id}/batalkan`;
         }
 
         function closeCancelModal() {
-            document.getElementById('cancel-modal').classList.add('hidden');
+            const modal = document.getElementById('cancel-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
         }
 
-        document.getElementById('reason-select').addEventListener('change', function () {
-            const otherInput = document.getElementById('other-reason');
-            otherInput.classList.toggle('hidden', this.value !== 'Lainnya');
+        document.addEventListener('DOMContentLoaded', function () {
+            const reasonSelect = document.getElementById('reason-select');
+            const otherReasonInput = document.getElementById('other-reason');
+
+            reasonSelect.addEventListener('change', function () {
+                otherReasonInput.classList.toggle('hidden', this.value !== 'Lainnya');
+            });
         });
     </script>
     @endpush
+    @stack('scripts')
+
 </x-app-layout>

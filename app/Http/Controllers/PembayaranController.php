@@ -63,7 +63,7 @@ class PembayaranController extends Controller
         'mobil_id' => 'required|exists:mobils,id',
         'tanggal_sewa' => 'required|date',
         'durasi' => 'required|integer|min:1',
-        'dengan_supir' => 'required|boolean',
+        'opsi_sopir' => 'required|boolean',
         'pengambilan' => 'required|string',
         'metode_pembayaran' => 'required|in:transfer,ewallet,cod',
         'ktp' => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -79,7 +79,7 @@ class PembayaranController extends Controller
     // Hitung total
     $hargaMobil = $mobil->harga;
     $totalHarga = $hargaMobil * $validated['durasi'];
-    if ($validated['dengan_supir']) {
+    if ($validated['opsi_sopir']) {
         $totalHarga += 200000;
     }
 
@@ -89,7 +89,7 @@ class PembayaranController extends Controller
         'mobil_id' => $validated['mobil_id'],
         'tanggal_sewa' => $validated['tanggal_sewa'],
         'durasi' => $validated['durasi'],
-        'dengan_supir' => $validated['dengan_supir'],
+        'opsi_sopir' => $validated['opsi_sopir'],
         'pengambilan' => $validated['pengambilan'],
         'ktp' => $ktpPath,
         'sim' => $simPath,

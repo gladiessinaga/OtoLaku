@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
         MobilSeeder::class,
+        FaqSeeder::class,
     ]);
     
     }

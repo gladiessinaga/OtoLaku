@@ -19,6 +19,7 @@
                             @if($pemesanan->status == 'terverifikasi') bg-green-100 text-green-800
                             @elseif($pemesanan->status == 'menunggu_verifikasi') bg-yellow-100 text-yellow-800
                             @elseif($pemesanan->status == 'dibatalkan') bg-red-100 text-red-800
+                            @elseif($pemesanan->status == 'belum_bayar') bg-red-200 text-red-900
                             @else bg-gray-100 text-gray-800
                             @endif
                         ">
@@ -51,6 +52,25 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="pt-4 border-t space-y-4">
+                    @if($pemesanan->status == 'terverifikasi')
+                        <a href="{{ route('invoice.download', $pemesanan->id) }}" 
+                           class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            Download Invoice
+                        </a>
+                    @elseif($pemesanan->status == 'menunggu_verifikasi')
+                        <p class="text-yellow-700 font-semibold">Invoice akan tersedia setelah pesanan diverifikasi.</p>
+                    @elseif($pemesanan->status == 'dibatalkan')
+                        <p class="text-red-600 font-semibold">Pesanan dibatalkan. Invoice tidak tersedia.</p>
+                    @elseif($pemesanan->status == 'belum_bayar')
+                        <a href="{{ route('user.konfirmasi', $pemesanan->id) }}" 
+                           class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Lanjutkan Pembayaran
+                        </a>
+                    @endif
+                </div>
+
             @else
                 <p class="text-gray-500">Data tidak ditemukan</p>
             @endif  

@@ -7,6 +7,9 @@ use App\Models\Mobil;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Pemesanan;
+use Carbon\Carbon;
+use App\Models\Pembatalan;
+use App\Notifications\VerifikasiPembayaranNotification;
 
 class PemesananController extends Controller
 {
@@ -17,15 +20,10 @@ class PemesananController extends Controller
 //     return view('user.form-pemesanan', compact('mobil'));
 // }
 
-public function form(Mobil $mobil)
-{
-    return view('user.form-pemesanan', compact('mobil'));
-}
-
 public function store(Request $request, Mobil $mobil)
 {
     $validated = $request->validate([
-        'tanggal_sewa' => 'required|date',
+        'tanggal_sewa' => 'required|date|after_or_equal:today',
         'durasi' => 'required|integer|min:1',
         'opsi_sopir' => 'required',
         'pengambilan' => 'required',
@@ -33,9 +31,29 @@ public function store(Request $request, Mobil $mobil)
         'sim' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
     ]);
 
+    // Hitung tanggal selesai
+    $tanggalMulai = \Carbon\Carbon::parse($validated['tanggal_sewa']);
+    $tanggalSelesai = $tanggalMulai->copy()->addDays($validated['durasi'] - 1);
+
+    // Cek apakah mobil sudah dipesan di rentang tanggal itu
+    $mobilSudahDipesan = Pemesanan::where('mobil_id', $mobil->id)
+        ->whereIn('status', ['menunggu_verifikasi', 'terverifikasi']) // status aktif
+        ->where(function ($query) use ($tanggalMulai, $tanggalSelesai) {
+            $query->whereBetween('tanggal_sewa', [$tanggalMulai, $tanggalSelesai])
+                  ->orWhereRaw('? BETWEEN tanggal_sewa AND DATE_ADD(tanggal_sewa, INTERVAL durasi - 1 DAY)', [$tanggalMulai])
+                  ->orWhereRaw('? BETWEEN tanggal_sewa AND DATE_ADD(tanggal_sewa, INTERVAL durasi - 1 DAY)', [$tanggalSelesai]);
+        })
+        ->exists();
+
+    if ($mobilSudahDipesan) {
+        return back()->with('error', 'Mobil tidak tersedia di tanggal yang dipilih.');
+    }
+
+    // Simpan file
     $ktpPath = $request->file('ktp')->store('ktp', 'public');
     $simPath = $request->file('sim')->store('sim', 'public');
 
+    // Simpan ke database
     $pemesanan = Pemesanan::create([
         'user_id' => auth()->id(),
         'mobil_id' => $mobil->id,
@@ -45,25 +63,26 @@ public function store(Request $request, Mobil $mobil)
         'pengambilan' => $validated['pengambilan'],
         'ktp' => $ktpPath,
         'sim' => $simPath,
-        'status' => 'menunggu', // status default
+        'status' => 'draft',
     ]);
 
-
-    // Simpan pemesanan ke database (buat model Pemesanan jika perlu)
-    // Pemesanan::create([...]);
-
     session([
-    'pemesanan_data' => array_merge(
-        $request->except(['ktp', 'sim']),
-        ['ktp_path' => $ktpPath, 'sim_path' => $simPath]
-    )
-]);
-    return redirect()->route('pembayaran.konfirmasi',  $pemesanan->id);
+        'pemesanan_data' => array_merge(
+            $request->except(['ktp', 'sim']),
+            ['ktp_path' => $ktpPath, 'sim_path' => $simPath]
+        )
+    ]);
+
+    return redirect()->route('pembayaran.konfirmasi', $pemesanan->id);
 }
+
 
 public function pembayaranSelesai($id)
 {
     $pemesanan = Pemesanan::findOrFail($id);
+    $pemesanan->status = 'selesai'; // <-- mungkin perlu ini
+    $pemesanan->save();
+
     return view('user.pembayaran-selesai', compact('pemesanan'));
 }   
 
@@ -74,7 +93,7 @@ public function pembayaranSelesai($id)
     $pemesanan = Pemesanan::with('mobil')
                ->where('user_id', Auth::id())
                ->where('id', $id)
-               ->firstOrFail();  // ambil 1 data
+               ->firstOrFail();  // ambil 1 data    
 
 return view('user.pemesanan.detail', compact('pemesanan'));
 
@@ -82,8 +101,11 @@ return view('user.pemesanan.detail', compact('pemesanan'));
 
 public function tolak($id)
 {
+    if (auth()->user()->role !== 'admin') {
+        abort(403);
+    }
+    
     $pemesanan = Pemesanan::findOrFail($id);
-    // Update status jadi 'ditolak'
     $pemesanan->status = 'ditolak';
     $pemesanan->save();
 
@@ -108,26 +130,26 @@ public function aktif()
 public function riwayat()
 {
     $user = Auth::user();
-    $pemesanan = Pemesanan::with('mobil')
+    $pemesanans = Pemesanan::with('mobil')
         ->where('user_id', $user->id)
-        ->where('status', 'selesai')
-        ->latest()
+        ->whereIn('status', ['selesai', 'dibatalkan', 'dikembalikan']) // ← tambahkan ini
+        ->orderByDesc('created_at')
         ->get();
 
-    return view('user.riwayat.index', compact('pemesanan'));
+    return view('user.riwayat.index', compact('pemesanans'));
 }
 
 // Method detail riwayat pemesanan selesai (jika ingin pisah)
 public function showRiwayat($id)
 {
     $user = Auth::user();
-    $pemesanan = Pemesanan::with('mobil')
+    $pemesanans = Pemesanan::with('mobil')
                ->where('user_id', $user->id)
                ->where('id', $id)
                ->where('status', 'selesai')
                ->firstOrFail();
 
-    return view('user.riwayat.detail', compact('pemesanan'));
+    return view('user.riwayat.detail', compact('pemesanans'));
 }
 
 public function index()
@@ -140,16 +162,99 @@ public function index()
 }
 
 public function batalkan(Request $request, $id) {
+    $request->validate([
+        'alasan' => 'required|string',
+        'alasan_lain' => 'nullable|string',
+    ]);
+
+    $pemesanan = Pemesanan::where('id', $id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+    // Cek status agar hanya bisa batalkan jika status masih valid untuk dibatalkanad
+    if (!in_array($pemesanan->status, ['menunggu_verifikasi', 'terverifikasi'])) {
+        return redirect()->back()->with('error', 'Pemesanan tidak dapat dibatalkan.');
+    }
+
+    if ($pemesanan->pembatalan) {
+    return redirect()->back()->with('error', 'Permintaan pembatalan sudah dikirim.');
+}
+    Pembatalan::create([
+    'pemesanan_id' => $pemesanan->id,
+    'alasan' => $request->alasan === 'Lainnya' ? $request->alasan_lain : $request->alasan,
+    'status' => 'pending',
+]);
+
+    return redirect()->back()->with('success', 'Permintaan pembatalan telah dikirim. Menunggu persetujuan admin.');
+}
+
+public function form(Mobil $mobil)
+{
+    // Ambil semua pemesanan aktif (yang belum dibatalkan/ditolak) untuk mobil ini
+    $pemesananAktif = Pemesanan::where('mobil_id', $mobil->id)
+        ->whereIn('status', ['menunggu_verifikasi', 'terverifikasi'])
+        ->get();
+
+    // Kumpulkan semua tanggal yang terisi
+    $tanggalTerisi = [];
+
+    foreach ($pemesananAktif as $pemesanan) {
+    $start = Carbon::parse($pemesanan->tanggal_sewa);
+    $end = $start->copy()->addDays($pemesanan->durasi - 1);
+
+    for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+        $tanggalTerisi[] = $date->format('Y-m-d');
+    }
+}
+    return view('user.form-pemesanan', compact('mobil', 'tanggalTerisi'));
+}
+
+public function konfirmasiPengembalian($id)
+{
     $pemesanan = Pemesanan::findOrFail($id);
-    
-    $pemesanan->permintaan_pembatalan = true;
-    $pemesanan->alasan_pembatalan = $request->alasan == 'Lainnya' ? $request->alasan_lain : $request->alasan;
-    $pemesanan->status_pembatalan = 'pending';
+
+    if ($pemesanan->status !== 'sudah_diambil') {
+        return redirect()->back()->with('error', 'Status pemesanan tidak valid untuk pengembalian.');
+    }
+
+    $pemesanan->status = 'dikembalikan';
     $pemesanan->save();
 
-    return back()->with('success', 'Permintaan pembatalan telah dikirim ke admin.');
+    return redirect()->back()->with('success', 'Status berhasil diubah menjadi Dikembalikan.');
+}
+
+public function ajukanPengembalian($id)
+{
+    $pemesanan = Pemesanan::findOrFail($id);
+
+    // Pastikan mobil sudah diserahkan
+    if ($pemesanan->status_penyerahan !== 'sudah_diserahkan') {
+        return back()->with('error', 'Mobil belum diserahkan.');
+    }
+
+    // Cegah pengajuan berulang
+    if ($pemesanan->status_pengembalian === 'menunggu_verifikasi') {
+        return back()->with('error', 'Pengembalian sudah diajukan.');
+    }
+
+    // Update status pengembalian
+    $pemesanan->status_pengembalian = 'menunggu_verifikasi';
+    $pemesanan->save();
+
+    return back()->with('success', 'Pengajuan pengembalian berhasil.');
 }
 
 
+public function downloadInvoice($id)
+{
+    $pemesanan = Pemesanan::with('mobil')->findOrFail($id);
+
+    if ($pemesanan->status !== 'terverifikasi') {
+        return redirect()->back()->with('error', 'Invoice hanya tersedia untuk pesanan yang terverifikasi.');
+    }
+
+    $pdf = Pdf::loadView('user.invoice', compact('pemesanan'));
+    return $pdf->download('invoice_pemesanan_'.$pemesanan->id.'.pdf');
+}
 
 }

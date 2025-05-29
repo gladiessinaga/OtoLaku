@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pemesanans', function (Blueprint $table) {
-            $table->boolean('permintaan_pembatalan')->default(false);
-            $table->text('alasan_pembatalan')->nullable();
-            $table->enum('status_pembatalan', ['pending', 'disetujui', 'ditolak'])->nullable();
-        });
+        $table->string('opsi_sopir')->default('tanpa');
+    });
     }
 
     /**
@@ -24,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pemesanans', function (Blueprint $table) {
-            //
+            $table->dropColumn('opsi_sopir');
         });
     }
 };
