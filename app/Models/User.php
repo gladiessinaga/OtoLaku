@@ -18,9 +18,11 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+
     protected $fillable = [
         'name',
         'email',
+        'no_hp',
         'password',
     ];
 
@@ -43,4 +45,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+
+    public function notifikasis()
+{
+    return $this->hasMany(Notifikasi::class, 'user_id');
 }
+
+}
+

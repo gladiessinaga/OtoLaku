@@ -1,0 +1,66 @@
+/* Style kustom untuk aplikasi rental mobil */
+
+/* Umum */
+body {
+    font-family: 'Work Sans', sans-serif;
+    background-color: #f9fafb;
+}
+
+/* Kartu Mobil */
+.card-mobil {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e5e7eb;
+    min-height: 300px;
+}
+
+.card-mobil:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-mobil img {
+    border-radius: 0.5rem;
+    object-fit: cover;
+}
+
+/* Judul mobil */
+.card-mobil h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    color: #111827;
+}
+
+/* Deskripsi mobil */
+.card-mobil p {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+/* Harga mobil */
+.card-mobil .harga {
+    color: #16a34a !important;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+/* Fasilitas mobil */
+.card-mobil .fasilitas {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* Carousel arrows */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    z-index: 10;
+}

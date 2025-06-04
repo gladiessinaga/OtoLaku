@@ -42,10 +42,10 @@
                                 {{ __('Dashboard') }}
                             </x-nav-link>
                             <x-nav-link 
-                                :href="route('user.riwayat')" 
-                                :active="request()->routeIs('user.riwayat')" 
+                                :href="route('riwayat-pemesanan')" 
+                                :active="request()->routeIs('riwayat-pemesanan')" 
                                 class="hover:border-b-2 hover:border-blue-500 transition duration-200">
-                                {{ __('Riwayat Pembatalan') }}
+                                {{ __('Riwayat Pemesanan') }}
                             </x-nav-link>
                             <x-nav-link 
                                 :href="route('user.notifikasi')" 
@@ -184,9 +184,9 @@
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link 
-                        :href="route('user.riwayat')" 
-                        :active="request()->routeIs('user.riwayat')">
-                        {{ __('Riwayat Pembatalan') }}
+                        :href="route('riwayat-pemesanan')" 
+                        :active="request()->routeIs('riwayat-pemesanan')">
+                        {{ __('Riwayat Pemesanan') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link 
                         :href="route('user.notifikasi')" 

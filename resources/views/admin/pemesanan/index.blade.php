@@ -25,6 +25,7 @@
                                 <tr>
                                     <th class="py-3 px-4">#</th>
                                     <th class="py-3 px-4">Nama User</th>
+                                    <th class="py-3 px-4">Nomor HP</th> <!-- Kolom nomor HP ditambah -->
                                     <th class="py-3 px-4">Mobil</th>
                                     <th class="py-3 px-4">Tanggal Sewa</th>
                                     <th class="py-3 px-4">Status</th>
@@ -47,6 +48,7 @@
                                     <tr class="border-t dark:border-gray-600">
                                         <td class="py-3 px-4">{{ $item->id }}</td>
                                         <td class="py-3 px-4">{{ $item->user->name }}</td>
+                                        <td class="py-3 px-4">{{ $item->user->no_hp }}</td> <!-- Nomor HP user -->
                                         <td class="py-3 px-4">{{ $item->mobil->nama }}</td>
                                         <td class="py-3 px-4">{{ $item->tanggal_sewa }}</td>
                                         <td class="py-3 px-4">

@@ -35,6 +35,21 @@
                         Feedback User
                     </a>
 
+                    <a href="{{ route('admin.verifikasi-pengembalian') }}"
+                        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded shadow transition text-center">
+                            Verifikasi Pengembalian
+                        </a>
+
+                        <a href="{{ route('admin.denda-bbm') }}"
+                        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded shadow transition text-center">
+                            Verifikasi Denda
+                        </a>
+
+                        <a href="{{ route('admin.pengguna') }}"
+                        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded shadow transition text-center">
+                            Daftar Pengguna
+                        </a>
+
                     <div class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-medium py-3 px-4 rounded shadow flex items-center justify-between">
                         <span>Pesanan Baru:</span>
                         <span class="bg-red-600 text-white rounded-full px-3 py-1 text-sm font-semibold ml-2">

@@ -19,6 +19,7 @@
                         <thead>
                             <tr class="bg-gray-200 text-left text-sm font-medium text-gray-700">
                                 <th class="py-3 px-4">User</th>
+                                <th class="py-3 px-4">No Telepon</th>
                                 <th class="py-3 px-4">Deskripsi</th>
                                 <th class="py-3 px-4">Foto</th>
                                 <th class="py-3 px-4">Tanggal</th>
@@ -28,6 +29,7 @@
                             @forelse ($laporan as $item)
                                 <tr class="border-t">
                                     <td class="py-3 px-4">{{ $item->user->name ?? 'Unknown' }}</td>
+                                    <td class="py-3 px-4">{{ $item->user->no_hp ?? 'Unknown' }}</td>
                                     <td class="py-3 px-4">{{ $item->deskripsi }}</td>
                                     <td class="py-3 px-4">
                                         @if ($item->foto)

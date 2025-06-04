@@ -119,8 +119,8 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg max-w-3xl mx-4 p-6 relative shadow-lg overflow-y-auto max-h-[80vh]">
             <h2 class="text-2xl font-semibold mb-4">Syarat dan Ketentuan</h2>
             <div class="text-sm text-gray-700 dark:text-gray-300 mb-6 overflow-y-auto max-h-64">
-                <p>Isi syarat dan ketentuan lengkap di sini...</p>
-                <p>Contoh: Penggunaan aplikasi ini tunduk pada aturan yang berlaku, jangan membagikan password, dsb.</p>
+                <p>Jaga kerahasiaan informasi login (email dan password). Segala aktivitas yang terjadi di akun Anda menjadi tanggung jawab pemilik akun.</p>
+                <p>Jika terdapat indikasi penyalahgunaan akun, segera hubungi admin aplikasi.</p>
             </div>
             <button id="closeTermsBtn" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 Tutup

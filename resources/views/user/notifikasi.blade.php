@@ -32,14 +32,15 @@
                         {{-- Daftar notifikasi --}}
                         <ul class="space-y-4">
                             @foreach($notifications as $notification)
-                                <li class="p-4 rounded border {{ $notification->read_at ? 'bg-white' : 'bg-green-50 font-semibold' }}">
-                                    <a href="{{ $notification->data['url'] ?? '#' }}" class="text-gray-800 hover:text-green-700">
-                                        {{ $notification->data['message'] ?? 'Notifikasi baru' }}
-                                    </a>
+                                <li class="p-4 rounded border {{ $notification->dibaca ? 'bg-white' : 'bg-green-50 font-semibold' }}">
+                                    {{-- Kamu bisa tambahkan link jika ada URL, contoh: --}}
+                                    {{-- <a href="{{ $notification->url ?? '#' }}" class="text-gray-800 hover:text-green-700"> --}}
+                                    {{ $notification->pesan }}
+                                    {{-- </a> --}}
                                     <br>
                                     <small class="text-gray-500">{{ $notification->created_at->diffForHumans() }}</small>
 
-                                    @if(!$notification->read_at)
+                                    @if(!$notification->dibaca)
                                         <form action="{{ route('notifications.markAsRead', $notification->id) }}" method="POST" class="inline-block ml-4">
                                             @csrf
                                             <button type="submit" class="text-green-600 hover:text-green-800 text-sm underline">

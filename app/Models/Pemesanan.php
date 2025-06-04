@@ -20,6 +20,13 @@ class Pemesanan extends Model
         'ktp',
         'sim',
         'status',
+        'status_pengembalian',
+        'kondisi_bbm_kembali',
+        'denda_bbm',
+        'tanggal_sewa_terakhir',
+        'alamat_pengantaran',
+        'no_hp',
+        'status_verifikasi_denda_bbm',
     ];
 
     public function user()
@@ -40,6 +47,16 @@ class Pemesanan extends Model
     public function pembatalan()
 {
     return $this->hasOne(Pembatalan::class);
+}
+
+public function pengembalian()
+{
+    return $this->hasOne(Pengembalian::class);
+}
+
+public function filePerjanjian()
+{
+    return $this->hasOne(\App\Models\FilePerjanjian::class, 'pemesanan_id');
 }
 
 

@@ -28,6 +28,10 @@
                                     <td class="py-2">{{ $pemesanan->tanggal_sewa }}</td>
                                 </tr>
                                 <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <th class="py-2 text-left font-medium">Alamat Pengantaran</th>
+                                    <td class="py-2">{{ $pemesanan->alamat_pengantaran }}</td>
+                                </tr>
+                                <tr class="border-b border-gray-200 dark:border-gray-700">
                                     <th class="py-2 text-left font-medium">Durasi</th>
                                     <td class="py-2">{{ $pemesanan->durasi }} hari</td>
                                 </tr>
@@ -155,3 +159,4 @@
         </div>
     </div>
 </x-app-layout>
+ 

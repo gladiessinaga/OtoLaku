@@ -20,6 +20,8 @@ use App\Http\Controllers\AdminPengembalianController;
 use App\Http\Controllers\PengembalianUangController;
 use App\Http\Controllers\PembatalanDisetujuiController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\PerjanjianController;
+use App\Http\Controllers\UserDendaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,9 +104,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('penyerahan/{id}', [AdminPenyerahanController::class, 'update'])->name('penyerahan.update');
     Route::post('penyerahan/{id}/serahkan', [AdminPenyerahanController::class, 'serahkan'])->name('penyerahan.serahkan');
 
-    // Pengembalian
-    Route::get('pengembalian', [AdminPenyerahanController::class, 'index'])->name('pengembalian');
-    Route::put('pengembalian/{id}/verifikasi', [AdminPemesananController::class, 'verifikasiPengembalian'])->name('pengembalian.verifikasi');
+    // // Pengembalian
+    // Route::get('pengembalian', [AdminPenyerahanController::class, 'index'])->name('pengembalian');
+    // Route::put('pengembalian/{id}/verifikasi', [AdminPemesananController::class, 'verifikasiPengembalian'])->name('pengembalian.verifikasi');
 
 });
 
@@ -153,11 +155,11 @@ Route::get('/test-notif', function () {
     return 'Notifikasi terkirim!';
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('user.notifikasi');
-    Route::post('/notifikasi/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifikasi/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-});
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/notifikasi', [NotificationController::class, 'index'])->name('user.notifikasi');
+//     Route::post('/notifikasi/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+//     Route::post('/notifikasi/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+// });
 
 // Route::get('/faq', function () {
 //     return view('user.faq');
@@ -196,6 +198,38 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/invoice/download/{id}', [PemesananController::class, 'downloadInvoice'])->name('invoice.download');
+
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function() {
+    Route::get('/verifikasi-pengembalian', [AdminPengembalianController::class, 'verifikasiPengembalian'])->name('admin.verifikasi-pengembalian');
+    Route::post('/verifikasi-pengembalian/{id}', [AdminPengembalianController::class, 'prosesVerifikasi'])->name('admin.proses_verifikasi');
+});
+
+Route::middleware(['auth', 'user'])->group(function () {
+    Route::get('/riwayat-pemesanan', [DashboardController::class, 'riwayatPemesanan'])->name('riwayat-pemesanan');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/notifikasi', [DashboardController::class, 'notifikasi'])->name('user.notifikasi');
+    Route::post('/user/notifikasi/{id}/read', [DashboardController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/user/notifikasi/all-read', [DashboardController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/pengguna', [\App\Http\Controllers\AdminPemesananController::class, 'daftarPengguna'])->name('admin.pengguna');
+});
+
+Route::post('/admin/pemesanan/{id}/upload-perjanjian', [AdminPemesananController::class, 'uploadPerjanjian'])->name('admin.uploadPerjanjian');
+
+Route::get('/download-perjanjian', [PerjanjianController::class, 'generatePdf'])->name('download.perjanjian');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/bayar-denda-bbm/{id}', [UserDendaController::class, 'formPembayaranBBM'])->name('user.bayar-denda-bbm');
+    Route::post('/bayar-denda-bbm/{id}', [UserDendaController::class, 'prosesPembayaranBBM'])->name('user.proses-bayar-denda-bbm');
+});
+
+Route::get('/admin/denda-bbm', [AdminPengembalianController::class, 'dendaBBM'])->name('admin.denda-bbm');
+Route::post('/admin/verifikasi-denda-bbm/{id}', [AdminPengembalianController::class, 'verifikasiDendaBBM'])->name('admin.verifikasi-denda-bbm');
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 

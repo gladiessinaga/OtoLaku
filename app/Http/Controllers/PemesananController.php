@@ -10,6 +10,7 @@ use App\Models\Pemesanan;
 use Carbon\Carbon;
 use App\Models\Pembatalan;
 use App\Notifications\VerifikasiPembayaranNotification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PemesananController extends Controller
 {
@@ -22,14 +23,18 @@ class PemesananController extends Controller
 
 public function store(Request $request, Mobil $mobil)
 {
+    // dd($request->all());
     $validated = $request->validate([
         'tanggal_sewa' => 'required|date|after_or_equal:today',
         'durasi' => 'required|integer|min:1',
         'opsi_sopir' => 'required',
         'pengambilan' => 'required',
+        'alamat_pengantaran' => $request->pengambilan === 'diantar' ? 'required|string' : 'nullable|string',
         'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         'sim' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-    ]);
+        // 'no_hp'    => ['required', 'regex:/^08[0-9]{8,11}$/'],
+    ], 
+);
 
     // Hitung tanggal selesai
     $tanggalMulai = \Carbon\Carbon::parse($validated['tanggal_sewa']);
@@ -61,10 +66,13 @@ public function store(Request $request, Mobil $mobil)
         'durasi' => $validated['durasi'],
         'opsi_sopir' => $validated['opsi_sopir'],
         'pengambilan' => $validated['pengambilan'],
+        'alamat_pengantaran' => data_get($validated, 'alamat_pengantaran'),   
         'ktp' => $ktpPath,
         'sim' => $simPath,
+        // 'no_hp' => $validated['no_hp'], 
         'status' => 'draft',
-    ]);
+        'tanggal_sewa_terakhir' => $tanggalSelesai->format('Y-m-d'),
+    ]); 
 
     session([
         'pemesanan_data' => array_merge(
@@ -201,6 +209,8 @@ public function form(Mobil $mobil)
     foreach ($pemesananAktif as $pemesanan) {
     $start = Carbon::parse($pemesanan->tanggal_sewa);
     $end = $start->copy()->addDays($pemesanan->durasi - 1);
+    $pemesanan->tanggal_sewa_terakhir = $end->format('Y-m-d');
+    $pemesanan->save();
 
     for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
         $tanggalTerisi[] = $date->format('Y-m-d');
@@ -249,12 +259,32 @@ public function downloadInvoice($id)
 {
     $pemesanan = Pemesanan::with('mobil')->findOrFail($id);
 
+    $user = Auth::user();
+
     if ($pemesanan->status !== 'terverifikasi') {
         return redirect()->back()->with('error', 'Invoice hanya tersedia untuk pesanan yang terverifikasi.');
     }
 
-    $pdf = Pdf::loadView('user.invoice', compact('pemesanan'));
+
+    $pdf = Pdf::loadView('user.invoice', compact('pemesanan', 'user'));
     return $pdf->download('invoice_pemesanan_'.$pemesanan->id.'.pdf');
 }
+
+public function uploadPerjanjian(Request $request, $id)
+{
+    $request->validate([
+        'file_perjanjian' => 'required|mimes:pdf|max:2048',
+    ]);
+
+    $pemesanan = Pemesanan::findOrFail($id);
+    $file = $request->file('file_perjanjian')->store('perjanjian_sewa', 'public');
+
+    $pemesanan->file_perjanjian = $file;
+    $pemesanan->status_perjanjian = 'Diupload';
+    $pemesanan->save();
+
+    return back()->with('success', 'Perjanjian berhasil diupload!');
+}
+
 
 }

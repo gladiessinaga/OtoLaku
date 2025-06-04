@@ -25,6 +25,7 @@
                                     <th class="p-3">No</th>
                                     <th class="p-3">Nama Penyewa</th>
                                     <th class="p-3">Mobil</th>
+                                    <th class="p-3">No Telepon</th>
                                     <th class="p-3">Alasan</th>
                                     <th class="p-3">Status</th>
                                     <th class="p-3">Aksi</th>
@@ -36,6 +37,7 @@
                                         <td class="p-3">{{ $index + 1 }}</td>
                                         <td class="p-3">{{ $pembatalan->pemesanan->user->name }}</td>
                                         <td class="p-3">{{ $pembatalan->pemesanan->mobil->nama_mobil }}</td>
+                                        <td class="p-3">{{ $pembatalan->pemesanan->user->no_hp }}</td>
                                         <td class="p-3">{{ $pembatalan->alasan }}</td>
                                         <td class="p-3">
                                             @if($pembatalan->status === 'pending')

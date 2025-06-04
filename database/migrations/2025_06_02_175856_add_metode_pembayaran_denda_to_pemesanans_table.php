@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pemesanans', function (Blueprint $table) {
-        $table->boolean('sudah_dikembalikan')->default(false);
-        // $table->timestamp('tanggal_pengembalian')->nullable();
+       Schema::table('pemesanans', function (Blueprint $table) {
+        $table->string('metode_pembayaran_denda')->nullable();
     });
     }
 
@@ -23,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pemesanans', function (Blueprint $table) {
-        // $table->dropColumn(['sudah_dikembalikan', 'tanggal_pengembalian']);
+        $table->dropColumn('metode_pembayaran_denda');
     });
     }
 };
-

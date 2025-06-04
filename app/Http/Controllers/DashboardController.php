@@ -8,6 +8,7 @@ use App\Models\Pemesanan;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Notifications\VerifikasiPembayaranNotification;
+use App\Models\Notifikasi;
 
 class DashboardController extends Controller
 {
@@ -52,13 +53,15 @@ class DashboardController extends Controller
                         ->where('status', 'draft')
                         ->get();
 
+    $pemesananLengkap = Pemesanan::with('pengembalian')->where('user_id', auth()->id())->get();
+
     // Ambil notifikasi belum dibaca tanpa langsung menandainya sudah dibaca
     $unreadNotifications = $user->unreadNotifications;
 
 
     // dd($unreadNotifications);
 
-    return view('user.dashboard', compact('mobilTersedia', 'pemesananUser', 'pemesananTerbaru', 'draftPemesanan', 'unreadNotifications'));
+    return view('user.dashboard', compact('mobilTersedia', 'pemesananUser', 'pemesananTerbaru', 'draftPemesanan', 'unreadNotifications', 'pemesananLengkap'));
     }
 
     // Backup atau alias dari admin dashboard
@@ -81,17 +84,78 @@ class DashboardController extends Controller
         return view('user.riwayat', compact('pemesanan'));
     }
 
-    public function notifikasi()
-{
-    $user = Auth::user();
-    $notifications = $user->notifications()->latest()->get();
+//     public function notifikasi()
+// {
+//     $user = Auth::user();
+//     $notifications = $user->notifications()->latest()->get();
 
-     // Tandai semua notif unread jadi read
-    $user->unreadNotifications->markAsRead();
+//      // Tandai semua notif unread jadi read
+//     $user->unreadNotifications->markAsRead();
+
+//     return view('user.notifikasi', compact('notifications'));
+// }
+
+public function riwayatPemesanan()
+{
+    $pemesanan = Pemesanan::with(['mobil', 'pengembalian'])
+                    ->where('user_id', auth()->id())
+                    ->latest()
+                    ->get();
+
+    return view('user.riwayat-pemesanan', compact('pemesanan'));
+}
+
+public function notifikasi()
+{
+    $user = auth()->user();
+    $notifications = $user->notifikasis()->orderBy('created_at', 'desc')->get();
+
+    dd($notifications);
 
     return view('user.notifikasi', compact('notifications'));
 }
 
+public function markAsRead($id)
+{
+    $notif = Notifikasi::findOrFail($id);
+    if ($notif->user_id == auth()->id()) {
+        $notif->update(['dibaca' => true]);
+        return back()->with('success', 'Notifikasi berhasil ditandai sudah dibaca');
+    }
+    abort(403);
+}
+
+public function markAllAsRead()
+{
+    $user = auth()->user();
+    $user->notifikasis()->where('dibaca', false)->update(['dibaca' => true]);
+
+    return back()->with('success', 'Semua notifikasi berhasil ditandai sudah dibaca');
+}
+public function updateStatus($id, $status)
+{
+    $pesanan = Pemesanan::findOrFail($id);
+    $pesanan->status = $status;
+    $pesanan->save();
+
+    // Tentukan pesan notifikasi berdasarkan status
+    $pesan = match($status) {
+        'terverifikasi' => "Pesanan kamu telah diverifikasi oleh admin.",
+        'dibatalkan' => "Pesanan kamu telah dibatalkan oleh admin.",
+        'ditolak' => "Pesanan kamu ditolak. Silakan hubungi admin.",
+        'sudah_diserahkan' => "Mobil dari pesanan kamu telah diserahkan.",
+        'sudah_dikembalikan' => "Pengembalian mobil kamu telah diverifikasi.",
+        default => "Status pesanan kamu diperbarui.",
+    };
+
+    Notifikasi::create([
+        'user_id' => $pesanan->user_id,
+        'pesan' => "Pesanan ID {$pesanan->id}: {$pesan}",
+        'tipe' => $status,
+    ]);
+
+    return redirect()->back()->with('success', "Status pesanan diperbarui menjadi '{$status}' dan notifikasi dikirim.");
+}
 
 
 }

@@ -19,7 +19,7 @@
 
                     {{-- Cek jika tidak ada pemesanan --}}
                     @if($pemesanans->isEmpty())
-                        <p class="text-gray-600 dark:text-gray-300">Belum ada riwayat pemesanan.</p>
+                        <p class="text-gray-600 dark:text-gray-300">Belum ada riwayat pembatalan.</p>
                     @else
                         <div class="overflow-x-auto">
                             <table class="min-w-full table-auto border-collapse border border-gray-300 dark:border-gray-600">

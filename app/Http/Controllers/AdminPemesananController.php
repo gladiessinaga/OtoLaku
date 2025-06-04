@@ -10,6 +10,7 @@ use App\Notifications\PembatalanDitolak;
 use App\Models\User;
 use App\Notifications\VerifikasiPembayaranNotification;
 use Carbon\Carbon;
+use App\Models\FilePerjanjian;
 
 class AdminPemesananController extends Controller
 {
@@ -19,12 +20,13 @@ class AdminPemesananController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->get();
 
+        
         return view('admin.pemesanan.index', compact('pemesanan'));
     }
 
     public function show($id)
     {
-        $pemesanan = Pemesanan::with('user', 'mobil')->findOrFail($id);
+        $pemesanan = Pemesanan::with('user', 'mobil', 'filePerjanjian')->findOrFail($id);
         return view('admin.pemesanan.detail', compact('pemesanan'));
     }
  
@@ -136,6 +138,34 @@ public function verifikasiPengembalian($id)
     return redirect()->back()->with('success', 'Pengembalian mobil berhasil diverifikasi.');
 }
 
+    public function daftarPengguna()
+{
+    $users = \App\Models\User::where('role', 'user')->get(); // ambil hanya user biasa
+    return view('admin.pengguna', compact('users'));
+}
+
+public function uploadPerjanjian(Request $request, $pemesananId)
+{
+    // Validasi file harus PDF dan maksimal 5MB
+    $request->validate([
+        'file_perjanjian' => 'required|mimes:pdf|max:5120',
+    ]);
+
+    // Cari pemesanan berdasarkan ID
+    $pemesanan = Pemesanan::findOrFail($pemesananId);
+
+    // Simpan file ke storage/app/public/perjanjian
+    $file = $request->file('file_perjanjian');
+    $path = $file->store('perjanjian', 'public');
+
+    // Simpan informasi file ke database
+    FilePerjanjian::create([
+        'pemesanan_id' => $pemesanan->id,
+        'file_path' => $path,
+    ]);
+
+    return redirect()->back()->with('success', 'File perjanjian berhasil diunggah.');
+}
 
    
 }

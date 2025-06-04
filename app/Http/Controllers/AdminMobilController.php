@@ -72,6 +72,7 @@ class AdminMobilController extends Controller
         return redirect()->route('admin.mobil.index')->with('success', 'Mobil berhasil dihapus');
     }
 
+
     
 
     

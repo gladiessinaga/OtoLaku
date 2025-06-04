@@ -17,6 +17,7 @@
                             <th class="p-3">Kategori</th>
                             <th class="p-3">Pesan</th>
                             <th class="p-3">Dikirim pada</th>
+                            <th class="p-3">Nomor Telepon</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-800 dark:text-gray-100">
@@ -26,6 +27,7 @@
                             <td class="p-3 capitalize">{{ $fb->kategori }}</td>
                             <td class="p-3">{{ $fb->pesan }}</td>
                             <td class="p-3">{{ $fb->created_at->format('d M Y H:i') }}</td>
+                            <td class="p-3">{{ $fb->user->no_hp }}</td>
                         </tr>
                         @endforeach
                     </tbody>

@@ -28,6 +28,8 @@
                                 <th class="p-3">Mobil</th>
                                 <th class="p-3">Tanggal Sewa</th>
                                 <th class="p-3">Durasi</th>
+                                <th class="p-3">Alamat Pengantaran</th>
+                                <th class="p-3">No Telepon</th>
                                 <th class="p-3">Status</th>
                                 <th class="p-3">Aksi</th>
                             </tr>
@@ -39,8 +41,10 @@
                                     <td class="p-3">{{ $pemesanan->mobil->nama }}</td>
                                     <td class="p-3">{{ \Carbon\Carbon::parse($pemesanan->tanggal_mulai)->translatedFormat('d M Y') }}</td>
                                     <td class="p-3">{{ $pemesanan->durasi }} hari</td>
+                                    <td class="p-3">{{ $pemesanan->alamat_pengantaran}} </td>
+                                    <td class="p-3">{{ $pemesanan->user->no_hp }}</td>
                                     <td class="p-3">
-                                        <span class="px-2 py-1 text-sm rounded bg-yellow-500 text-white">
+                                        <span class="px-2 py-1 text-sm rounded bg-yellow-500 text-yellow">
                                             Siap Diserahkan
                                         </span>
                                     </td>
@@ -79,6 +83,7 @@
                                 <th class="p-3">Mobil</th>
                                 <th class="p-3">Tanggal Sewa</th>
                                 <th class="p-3">Durasi</th>
+                                <th class="p-3">No Telepon</th>
                                 <th class="p-3">Status</th>
                             </tr>
                         </thead>
@@ -89,6 +94,7 @@
                                     <td class="p-3">{{ $pemesanan->mobil->nama }}</td>
                                     <td class="p-3">{{ \Carbon\Carbon::parse($pemesanan->tanggal_mulai)->translatedFormat('d M Y') }}</td>
                                     <td class="p-3">{{ $pemesanan->durasi }} hari</td>
+                                    <td class="p-3">{{ $pemesanan->user->no_hp }}</td>
                                     <td class="p-3">
                                         <span class="px-2 py-1 text-sm rounded bg-red-500 text-white">
                                             {{ ucfirst($pemesanan->status) }}
@@ -119,6 +125,7 @@
                 <tr class="bg-gray-100 dark:bg-gray-700 text-left text-gray-600 dark:text-gray-200 text-sm uppercase">
                     <th class="p-3">Penyewa</th>
                     <th class="p-3">Mobil</th>
+                    <th class="p-3">No Telepon</th>
                     <th class="p-3">Tanggal Sewa</th>
                     <th class="p-3">Durasi</th>
                     <th class="p-3">Status Penyerahan</th>
@@ -129,6 +136,7 @@
                     <tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="p-3">{{ $pemesanan->user->name }}</td>
                         <td class="p-3">{{ $pemesanan->mobil->nama }}</td>
+                        <td class="p-3">{{ $pemesanan->user->no_hp }}</td>
                         <td class="p-3">{{ \Carbon\Carbon::parse($pemesanan->tanggal_mulai)->translatedFormat('d M Y') }}</td>
                         <td class="p-3">{{ $pemesanan->durasi }} hari</td>
                         <td class="p-3">
@@ -150,7 +158,7 @@
 </div>
 
 {{-- Tabel Mobil Menunggu Verifikasi Pengembalian --}}
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg p-6 space-y-6">
+{{-- <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg p-6 space-y-6">
     <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
         Mobil Menunggu Verifikasi Pengembalian
     </h1>
@@ -158,9 +166,11 @@
     <div class="overflow-x-auto">
         <table class="min-w-full table-auto">
             <thead>
+                
                 <tr class="bg-gray-100 dark:bg-gray-700 text-left text-gray-600 dark:text-gray-200 text-sm uppercase">
                     <th class="p-3">Penyewa</th>
                     <th class="p-3">Mobil</th>
+                    <th class="p-3">No Telepon</th>
                     <th class="p-3">Tanggal Sewa</th>
                     <th class="p-3">Durasi</th>
                     <th class="p-3">Tanggal Pengembalian</th>
@@ -172,6 +182,7 @@
                     <tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="p-3">{{ $pemesanan->user->name }}</td>
                         <td class="p-3">{{ $pemesanan->mobil->nama }}</td>
+                        <td class="p-3">{{ $pemesanan->user->no_hp }}</td>
                         <td class="p-3">{{ \Carbon\Carbon::parse($pemesanan->tanggal_mulai)->translatedFormat('d M Y') }}</td>
                         <td class="p-3">{{ $pemesanan->durasi }} hari</td>
                         <td class="p-3">{{ \Carbon\Carbon::parse($pemesanan->tanggal_pengembalian)->translatedFormat('d M Y') }}</td>
@@ -200,7 +211,7 @@
             </tbody>
         </table>
     </div>
-</div>
+</div> --}}
 
 
     {{-- SweetAlert Success --}}

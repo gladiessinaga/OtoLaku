@@ -189,6 +189,11 @@
         Lihat Pemesanan
     </a>
 
+    <a href="{{ route('user.riwayat') }}"
+       class="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-6 rounded-lg text-center transition shadow">
+        Riwayat Pembatalan
+    </a>
+
     <!-- Tombol Kirim Feedback -->
     <a href="{{ route('feedback.form') }}"
        class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-6 rounded-lg text-center transition shadow">

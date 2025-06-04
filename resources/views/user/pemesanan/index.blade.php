@@ -18,7 +18,9 @@
                         <th class="px-4 py-3 text-left">Mobil</th>
                         <th class="px-4 py-3 text-left">Tanggal Sewa</th>
                         <th class="px-4 py-3 text-left">Durasi</th>
+                        <th class="px-4 py-3 text-left">Pengambilan</th>
                         <th class="px-4 py-3 text-left">Status</th>
+                        <th class="px-4 py-3 text-left">Alamat Pengantaran</th>
                         <th class="px-4 py-3 text-left">Detail</th>
                     </tr>
                 </thead>
@@ -29,6 +31,7 @@
                             <td class="px-4 py-3">{{ $item->mobil ? $item->mobil->nama : 'Mobil tidak ditemukan' }}</td>
                             <td class="px-4 py-3">{{ $item->tanggal_sewa }}</td>
                             <td class="px-4 py-3">{{ $item->durasi }} hari</td>
+                            <td class="px-4 py-3">{{ $item->pengambilan }} </td>
                             <td class="px-4 py-3">
                                 @if($item->status === 'dibatalkan')
                                     <span class="inline-block px-2 py-1 rounded bg-red-200 text-red-800">Dibatalkan</span>
@@ -52,6 +55,7 @@
                                     {{-- kosong / tidak ada status --}}
                                 @endif
                             </td>
+                            <td class="px-4 py-3">{{ $item->alamat_pengantaran }} </td>
                             <td class="px-4 py-3 space-y-1">
                                 <a href="{{ route('user.pemesanan.show', $item->id) }}" class="text-blue-600 hover:underline block">Lihat</a>
                                 @if(in_array($item->status, ['menunggu_verifikasi', 'terverifikasi']) && !$item->pembatalan)

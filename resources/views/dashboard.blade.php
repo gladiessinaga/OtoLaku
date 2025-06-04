@@ -1,5 +1,10 @@
+@stack('styles')
+
 <x-app-layout>
     <x-slot name="header">
+        @push('styles')
+            <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
+        @endpush
         {{-- <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Dashboard') }}
         </h2> --}}
@@ -73,7 +78,7 @@
                         <h1 class="text-2xl font-bold mb-6">Daftar Mobil</h1>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach ($mobils as $mobil)
-                                <div class="border rounded-lg p-4 shadow">
+                                <div class="card-mobil p-4">
                                     @if ($mobil->foto)
                                         <img src="{{ asset('storage/' . $mobil->foto) }}" alt="{{ $mobil->nama }}" class="w-full h-40 object-cover rounded">
                                     @else
@@ -84,8 +89,8 @@
 
                                     <h2 class="text-xl font-semibold mt-4">{{ $mobil->nama }}</h2>
                                     <p class="text-sm text-gray-600 mt-2">{{ $mobil->deskripsi }}</p>
-                                    <p class="mt-2 text-green-6dd00 font-bold">Rp {{ number_format($mobil->harga, 0, ',', '.') }}/hari</p>
-                                    <p class="text-sm text-gray-500 mt-1">Fasilitas: {{ $mobil->fasilitas }}</p>
+                                    <p class="harga">Rp {{ number_format($mobil->harga, 0, ',', '.') }}/hari</p>
+                                    <p class="fasilitas">Fasilitas: {{ $mobil->fasilitas }}</p>
                                 </div>
                             @endforeach
                         </div>
